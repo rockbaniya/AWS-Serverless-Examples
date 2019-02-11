@@ -11,7 +11,7 @@
 #
 # Happy Coding!
 
-service: hello-world # NOTE: update this with your service name
+service: thumb-generator # NOTE: update this with your service name
 
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
@@ -28,11 +28,13 @@ provider:
   iamRoleStatements:
     - Effect: "Allow"
       Action:
-        - "lambda:*"
+       - "s3:*"
       Resource: 
-        - "*"
-  environment:
-    var1: value1
+       - "*"
+
+# you can define service wide environment variables here
+#  environment:
+#    variable1: value1
 
 # you can add packaging information here
 #package:
@@ -43,9 +45,18 @@ provider:
 #    - exclude-me.py
 #    - exclude-me-dir/**
 
+custom:
+  bucket: thumb-gen
+
 functions:
   hello:
     handler: handler.hello
+    events:
+      - s3:
+          bucket: ${self:custom.bucket}
+          event: s3:ObjectCreated:*
+          rules:
+            - suffix: .jpg
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
@@ -91,3 +102,5 @@ functions:
 #     NewOutput:
 #       Description: "Description for the output"
 #       Value: "Some output value"
+plugins:
+  - serverless-python-requirements
